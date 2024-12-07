@@ -13,7 +13,7 @@ So, for these example lists, the similarity score at the end of this process is 
 Once again consider your left and right lists. What is their similarity score?
 """
 
-with open("day2_input.txt", "r") as f:
+with open("day1_input.txt", "r") as f:
     data = f.read()
 
 rows = data.splitlines()

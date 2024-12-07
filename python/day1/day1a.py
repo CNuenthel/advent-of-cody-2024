@@ -16,13 +16,14 @@ for item in rows:
     left.append(int(nums[0]))
     right.append(int(nums[1]))
 
+
 def recursive_subtract(left_list, right_list):
     if not left_list and not right_list:
         return
 
     num1 = min(left_list)
     num2 = min(right_list)
-    calcs.append(abs(num1-num2))
+    calcs.append(abs(num1 - num2))
 
     left_list.remove(num1)
     right_list.remove(num2)
@@ -33,5 +34,3 @@ def recursive_subtract(left_list, right_list):
 recursive_subtract(left, right)
 
 print(sum(calcs))
-
-
