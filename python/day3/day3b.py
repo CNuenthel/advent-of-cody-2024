@@ -3,8 +3,10 @@ import re
 """
 AI Prompts Used:
 
+1. Gib updated regex
 
 """
+
 
 def multiply_string(mul_str: str) -> int:
     nums = mul_str.split(",")

@@ -3,8 +3,7 @@ import re
 """
 AI Prompts Used:
 
-1.  give me regex to match the string "mul(num,num)"
-    where num can be any integer up to any length
+1.  Gib regex
 
 """
 
