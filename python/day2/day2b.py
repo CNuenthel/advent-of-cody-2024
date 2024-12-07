@@ -35,15 +35,30 @@ def check_row(num_list: list) -> bool:
 
         # Calc diff and check for unsafe
         diff = abs(num_list[i + 1] - num_list[i])
-        print(diff)
+
         if not 0 < diff < 4:
-            return False
+            rem_num = num_list[i]
+            num_list.remove(num_list[i])
+
+            if check_row(num_list):
+                return True
+
+            else:
+                num_list.insert(rem_num, i)
+                num_list.remove(num_list[i+1])
+
+                if check_row(num_list):
+                    return True
+
 
         # If consecutive number is greater
         if num_list[i + 1] > num_list[i]:
 
             # But decreasing already flagged...
             if less_than:
+                num_list.remove(num_list[i+1])
+                if check_row(num_list):
+                    return True
                 return False
 
             # Num is < 3 and > 0 and consecutive num is greater, we set increasing status
@@ -51,6 +66,9 @@ def check_row(num_list: list) -> bool:
 
         # Greater than is flagged, but consecutive number isn't greater than, we set unsafe
         elif greater_than:
+            num_list.remove(num_list[i+1])
+            if check_row(num_list):
+                return True
             return False
 
         # Not flagged as increasing, then we must be decreasing
@@ -60,23 +78,12 @@ def check_row(num_list: list) -> bool:
     # Numbers remained increasing or decreasing and stayed within diff limits
     return True
 
-bads = []
 count = 0
 for row in rows:
     nums = [int(num) for num in row.split(" ")]
     if check_row(nums):
-        # count += 1
-        continue
-    else:
-        bads.append(nums)
-        for num in nums:
-            new_nums = copy.deepcopy(nums)
-            new_nums.remove(num)
-            if check_row(new_nums):
-                count += 1
-                break
+        count += 1
 
-print(bads)
-
+print(count)
 
 
