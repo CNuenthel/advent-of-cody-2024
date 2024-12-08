@@ -4,7 +4,8 @@ WHERE YOU DON'T EXPECT IT. GOD.
 
 I handled out of bounds indexes using a try|except block on IndexError, however negative indexes will not
 raise IndexError as they will then point towards the element enumerated from the end of the iterable. This
-is fine for out of pounds positive integers, but not negative integers.
+is fine for out of bounds positive integers, but not negative integers. I've known this for years, yet it
+still slipped through.
 
 Also, just use numpy
 """
@@ -136,7 +137,7 @@ class Letter:
         for k, v in direct_map.items():
             if v == "XMAS":
                 count += 1
-                print(f"XMAS found at {self.row}, {self.col} in the {k} direction")
+                # print(f"XMAS found at {self.row}, {self.col} in the {k} direction")
 
         return count
 
@@ -152,8 +153,13 @@ letters = []
 for row_index, row in enumerate(matrix):
     for column_index, char in enumerate(row):
         index = (column_index, row_index)
+
+        if char != "X":
+            continue
+
         let = Letter(index=index, matrix=matrix)
         let.build_neighborhood()
         xmas_found += let.check_xmas()
 
 print(xmas_found)
+# 2557
