@@ -1,5 +1,5 @@
 """
-If you set a dictionary value to 0 then check for the existance of the value directly, it may return unintended results. 
+If you set a dictionary value to 0 then check for the existance of the value directly, it may return unintended results.
 i.e:
 dict = {"9": 0}
 
@@ -14,18 +14,14 @@ This is demonstrated by
 if 0:
     print("OK")
 
-So ... uh... if you ever set a key to a value of 0, watch out for this. 
+So ... uh... if you ever set a key to a value of 0, watch out for this.
 
 """
 
-
-def applicable_pages(rulebook: dict, present_pages: list, rule_target: str):
-    ruled_pages = []
-    for page in present_pages:
-        if page in rulebook.get(rule_target, []):
-            ruled_pages.append(page)
-    return ruled_pages
-
+"""
+Update:
+    sigh. f#$% this.
+"""
 
 with open("day5_input.txt", "r") as f:
     data = f.read()
@@ -49,8 +45,13 @@ def check_rulebook(book):
             for rule in applicable_rules:
                 if rule in glossary.keys():
                     if glossary[rule] < glossary[num]:
-                        return False
-    return True
+                        glossary[rule], glossary[num] = glossary[num], glossary[rule]
+
+    final_book = ["." for i in range(len(glossary.keys()))]
+    for k, v in glossary.items():
+        final_book[v] = k
+
+    return final_book
 
 
 # Map rules to page
@@ -65,14 +66,10 @@ for rule in rules:
 vals = []
 for book in books:
     pages = book.split(",")
+    ls = check_rulebook(pages)
+    middle_num_index = len(pages)//2  # Don't forget index counts up from 0 here
+    vals.append(int(pages[middle_num_index]))
 
-    if check_rulebook(pages):
-        middle_num_index = len(pages)//2  # Don't forget index counts up from 0 here
-        vals.append(int(pages[middle_num_index]))
-        # print(f"{pages} passed the rulebook, middle num is {pages[middle_num_index]}")
-    else:
-        pass
-        # print(f"{pages} failed the rulebook")
 
 print(sum(vals))
 
