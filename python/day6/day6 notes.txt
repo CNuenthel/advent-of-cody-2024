@@ -1,0 +1,29 @@
+
+FOR STRIKING THE BOTTOM OF AN OBSTACLE:
+
+  0 1 2 3 4 5 6 7     in (x, y), * means cannot scale, n = any positive integer
+0 . . . . . . . .     t = new x coord value, j = new y coord value
+1 . # . . . . . .
+2 . . . . . . . #   (1,2) -> (6,2) -> (6,6) -> (1,7)
+3 . . . . . . . .   (x, y) -> (t=x+n, y-1*) -> (t*, j=y+n) -> (x-1,j*)
+4 . . . . . . . .
+5 . . . . . . . .
+6 . ^ . . . . . .
+7 # . . . . . # .
+
+
+REQUIRED OBSTACLES:
+( x , y ) : Obstacle in which guard strikes bottom
+( t=x+n , y+1 ) : East obstacle, left strike
+( t , j=y+n ) : South obstacle, north strike
+( x-1 , j ) : West obstacle, east strike
+
+IF ANY ARE MISSING:
+
+Missing East Obstacle:
+    Find obstacle where:
+        x > origin_x, y > origin_y and continue
+        if this fails, then a single drop will not work
+
+Missing South Obstacle:
+    Find obstacle where:

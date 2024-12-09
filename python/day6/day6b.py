@@ -1,24 +1,28 @@
-
-with open("day6_input.txt", "r") as f:
+with open("day6_input_sample.txt", "r") as f:
     data = f.read()
 
 rows = data.splitlines()
 matrix = [[char for char in row] for row in rows]
+
 
 class GuardMonitor:
     def __init__(self, floor_matrix: list):
         self.matrix = floor_matrix
         self.guard_index = (0, 0)
         self.guard_direction = None
-        self.locate_guard()
+        self.obstructions = []
+        self.locate_guard_and_obstructions()
 
-    def locate_guard(self):
+    def locate_guard_and_obstructions(self):
         # Locates the guard in the matrix data
         for i, row in enumerate(self.matrix):  # Y coordinate
             for j, char in enumerate(row):  # X coordinate
                 if char in ["<", "^", ">", "v"]:
                     self.guard_index = (j, i)
                     self.guard_direction = char
+                elif char == "#":
+                    index = [j, i]
+                    self.obstructions.append(index)
 
     def cycle_guard_direction(self):
         x_coord = self.guard_index[0]
@@ -40,7 +44,28 @@ class GuardMonitor:
     def check_for_pivot(self, index: tuple) -> bool:
         x_coord = index[0]
         y_coord = index[1]
+
         if self.matrix[y_coord][x_coord] == "#":
+            # Modify obstruction data with edge struck by guard vector
+            obs_index = None
+            for i, coord in enumerate(self.obstructions):
+                if list(index) == coord[:2]:
+                    obs_index = i
+                    break
+
+            edge = None
+            match self.guard_direction:
+                case ">":
+                    edge = "|-"
+                case "<":
+                    edge = "-|"
+                case "^":
+                    edge = "_|_"
+                case "v":
+                    edge = "T"
+
+            self.obstructions[obs_index].append(edge)
+
             return True
         return False
 
@@ -160,6 +185,11 @@ class GuardMonitor:
                 if step == "X":
                     count += 1
         print(count)
+
+    def develop_counter_ops(self):
+        # What if you just put an obstacle on every location the guard steps on, run the route and see if it infinite
+        # loops?
+        pass
 
 
 if __name__ == "__main__":
