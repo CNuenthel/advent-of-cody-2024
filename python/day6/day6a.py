@@ -12,7 +12,7 @@ class GuardMonitor:
         self.guard_direction = None
         self.locate_guard()
         self.step_count = 0
-        self.infinite_loops = 0
+        # self.infinite_loops = 0
 
     def locate_guard(self):
         # Locates the guard in the matrix data
@@ -60,17 +60,17 @@ class GuardMonitor:
         y_coord = index[1]
         self.matrix[y_coord][x_coord] = "X"
 
-    def simulate_block(self, x_coord, y_coord):
-        matrix_copy = [row for row in self.matrix]
-        matrix_copy[y_coord][x_coord] = "#"
-        sim_gm = GuardMonitor(matrix_copy)
-
-        sim_walking = True
-        while sim_walking:
-            sim_walking = sim_gm.move_guard()
-
-        if sim_gm.step_count > 6999:
-            self.infinite_loops += 1
+    # def simulate_block(self, x_coord, y_coord):
+    #     matrix_copy = [row for row in self.matrix]
+    #     matrix_copy[y_coord][x_coord] = "#"
+    #     sim_gm = GuardMonitor(matrix_copy)
+    #
+    #     sim_walking = True
+    #     while sim_walking:
+    #         sim_walking = sim_gm.move_guard()
+    #
+    #     if sim_gm.step_count > 6999:
+    #         self.infinite_loops += 1
 
     def move_guard(self) -> bool | str:
         guard_index = self.guard_index
@@ -97,7 +97,7 @@ class GuardMonitor:
                     return False
 
                 # Simulate block
-                self.simulate_block(x_coord, y_coord)
+                # self.simulate_block(x_coord, y_coord)
 
                 # Mark matrix and move guard
                 self.mark_matrix(guard_index)
@@ -128,7 +128,7 @@ class GuardMonitor:
                     return False
 
                 # Simulate block
-                self.simulate_block(x_coord, y_coord)
+                # self.simulate_block(x_coord, y_coord)
 
                 # Mark matrix, move guard, and update guard index
                 self.mark_matrix(guard_index)
@@ -159,7 +159,7 @@ class GuardMonitor:
                     return False
 
                 # Simulate block
-                self.simulate_block(x_coord, y_coord)
+                # self.simulate_block(x_coord, y_coord)
 
                 # Mark matrix and move guard
                 self.mark_matrix(guard_index)
@@ -190,7 +190,7 @@ class GuardMonitor:
                     return False
 
                 # Simulate block
-                self.simulate_block(x_coord, y_coord)
+                # self.simulate_block(x_coord, y_coord)
 
                 # Mark matrix and move guard
                 self.mark_matrix(guard_index)
@@ -219,4 +219,3 @@ if __name__ == "__main__":
         walking = gm.move_guard()
 
     gm.retrace_steps()
-    print(gm.infinite_loops)
