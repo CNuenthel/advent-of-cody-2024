@@ -6,13 +6,14 @@ matrix = [[char for char in row] for row in rows]
 
 
 class GuardMonitor:
-    def __init__(self, floor_matrix: list):
+    def __init__(self, floor_matrix: list, simulation=False):
+        self.simulation = simulation
         self.matrix = floor_matrix
         self.guard_index = (0, 0)
         self.guard_direction = None
         self.locate_guard()
         self.step_count = 0
-        # self.infinite_loops = 0
+        self.infinite_loops = 0
 
     def locate_guard(self):
         # Locates the guard in the matrix data
@@ -60,18 +61,6 @@ class GuardMonitor:
         y_coord = index[1]
         self.matrix[y_coord][x_coord] = "X"
 
-    # def simulate_block(self, x_coord, y_coord):
-    #     matrix_copy = [row for row in self.matrix]
-    #     matrix_copy[y_coord][x_coord] = "#"
-    #     sim_gm = GuardMonitor(matrix_copy)
-    #
-    #     sim_walking = True
-    #     while sim_walking:
-    #         sim_walking = sim_gm.move_guard()
-    #
-    #     if sim_gm.step_count > 6999:
-    #         self.infinite_loops += 1
-
     def move_guard(self) -> bool | str:
         guard_index = self.guard_index
 
@@ -95,9 +84,6 @@ class GuardMonitor:
                 # Check for infinite loop
                 if self.step_count > 7000:
                     return False
-
-                # Simulate block
-                # self.simulate_block(x_coord, y_coord)
 
                 # Mark matrix and move guard
                 self.mark_matrix(guard_index)
@@ -125,10 +111,8 @@ class GuardMonitor:
 
                 # Check for infinite loop
                 if self.step_count > 6000:
+                    print("No Loop Found")
                     return False
-
-                # Simulate block
-                # self.simulate_block(x_coord, y_coord)
 
                 # Mark matrix, move guard, and update guard index
                 self.mark_matrix(guard_index)
@@ -158,9 +142,6 @@ class GuardMonitor:
                 if self.step_count > 6000:
                     return False
 
-                # Simulate block
-                # self.simulate_block(x_coord, y_coord)
-
                 # Mark matrix and move guard
                 self.mark_matrix(guard_index)
                 self.matrix[y_coord][x_coord] = self.guard_direction
@@ -188,9 +169,6 @@ class GuardMonitor:
                 # Check for infinite loop
                 if self.step_count > 6000:
                     return False
-
-                # Simulate block
-                # self.simulate_block(x_coord, y_coord)
 
                 # Mark matrix and move guard
                 self.mark_matrix(guard_index)

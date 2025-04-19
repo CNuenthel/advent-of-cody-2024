@@ -1,34 +1,54 @@
+from tqdm import tqdm
+
 with open("day6_input_sample.txt", "r") as f:
     data = f.read()
 
-rows = data.splitlines()
-matrix = [[char for char in row] for row in rows]
+
+class InfiniteLoop(Exception):
+    """ Custom Exception for Infinite Loops """
+    pass
 
 
-class GuardMonitor:
-    def __init__(self, floor_matrix: list):
-        self.matrix = floor_matrix
-        self.guard_index = (0, 0)
-        self.guard_direction = None
-        self.obstructions = []
-        self.locate_guard_and_obstructions()
+class Node:
+    def __init__(self, char):
+        self.char = char
+        self.struck = ""
 
-    def locate_guard_and_obstructions(self):
-        # Locates the guard in the matrix data
-        for i, row in enumerate(self.matrix):  # Y coordinate
-            for j, char in enumerate(row):  # X coordinate
-                if char in ["<", "^", ">", "v"]:
-                    self.guard_index = (j, i)
-                    self.guard_direction = char
-                elif char == "#":
-                    index = [j, i]
-                    self.obstructions.append(index)
+    def __repr__(self):
+        return str(self.char)
+
+    def __str__(self):
+        return str(self.char)
+
+    def get_struck(self):
+        return self.struck
+
+    def set_struck(self, direction: ""):
+        if direction not in ["<", "^", ">", "v"]:
+            raise Exception("Unhandled guard direction detected")
+
+        if self.char != "#":
+            return
+
+        match direction:
+            case "<":
+                self.struck = "EAST"
+            case "^":
+                self.struck = "SOUTH"
+            case ">":
+                self.struck = "WEST"
+            case "v":
+                self.struck = "NORTH"
+
+        return self.struck
+
+
+class Guard:
+    def __init__(self, index: tuple, direction: str):
+        self.index = index
+        self.guard_direction = direction
 
     def cycle_guard_direction(self):
-        x_coord = self.guard_index[0]
-        y_coord = self.guard_index[1]
-
-        # Modifies guard direction
         match self.guard_direction:
             case "<":
                 self.guard_direction = "^"
@@ -39,35 +59,22 @@ class GuardMonitor:
             case "v":
                 self.guard_direction = "<"
 
-        self.matrix[y_coord][x_coord] = self.guard_direction
 
-    def check_for_pivot(self, index: tuple) -> bool:
-        x_coord = index[0]
-        y_coord = index[1]
+class Matrix:
+    def __init__(self, matrix: list):
+        self.matrix = matrix
+        self.guard = None
+        self.locate_guard()
+        self.infinite_loop = False
 
-        if self.matrix[y_coord][x_coord] == "#":
-            # Modify obstruction data with edge struck by guard vector
-            obs_index = None
-            for i, coord in enumerate(self.obstructions):
-                if list(index) == coord[:2]:
-                    obs_index = i
-                    break
-
-            edge = None
-            match self.guard_direction:
-                case ">":
-                    edge = "|-"
-                case "<":
-                    edge = "-|"
-                case "^":
-                    edge = "_|_"
-                case "v":
-                    edge = "T"
-
-            self.obstructions[obs_index].append(edge)
-
-            return True
-        return False
+    def locate_guard(self):
+        # Locates the guard in the matrix data
+        for i, row in enumerate(self.matrix):  # Y coordinate
+            for j, node in enumerate(row):  # X coordinate
+                if node.char in ["<", "^", ">", "v"]:
+                    self.guard = Guard((j, i), node.char)
+                    return
+        raise Exception("Guard was not found")
 
     def check_for_out_of_bounds(self, index: tuple) -> bool:
         x_coord = index[0]
@@ -78,36 +85,30 @@ class GuardMonitor:
             return True
         return False
 
-    def mark_matrix(self, index: tuple):
+    def check_for_pivot(self, index: tuple) -> bool:
         x_coord = index[0]
         y_coord = index[1]
-        self.matrix[y_coord][x_coord] = "X"
+        node: Node = self.matrix[y_coord][x_coord]
+        if node.char == "#":
+            struck_state = node.get_struck()
+            new_state = node.set_struck(self.guard.guard_direction)
 
-    def move_guard(self) -> bool:
-        guard_index = self.guard_index
+            if struck_state == new_state:
+                raise InfiniteLoop("Whoo-wee Rick I think we are in an infinite loop...")
 
-        match self.guard_direction:
+            return True
+        return False
+
+    def move_guard(self) -> bool | str:
+        guard_index = self.guard.index
+        index = None
+
+        match self.guard.guard_direction:
             case "<":
                 # Get target coordinates
-                x_coord = self.guard_index[0] - 1
+                x_coord = self.guard.index[0] - 1
                 y_coord = guard_index[1]
                 index = (x_coord, y_coord)
-
-                # Check for board exit
-                if self.check_for_out_of_bounds(index):
-                    self.mark_matrix(guard_index)
-                    return False
-
-                # Check for pivot space
-                if self.check_for_pivot(index):
-                    self.cycle_guard_direction()
-                    return True
-
-                # Mark matrix and move guard
-                self.mark_matrix(guard_index)
-                self.matrix[y_coord][x_coord] = self.guard_direction
-                self.guard_index = (x_coord, y_coord)
-                return True
 
             case "^":
                 # Get target coordinates
@@ -115,45 +116,11 @@ class GuardMonitor:
                 y_coord = guard_index[1] - 1
                 index = (x_coord, y_coord)
 
-                # Check for board exit
-                if self.check_for_out_of_bounds(index):
-                    self.mark_matrix(guard_index)
-                    return False
-
-                # Check for pivot space
-                if self.check_for_pivot(index):
-                    self.cycle_guard_direction()
-                    return True
-
-                # Mark matrix, move guard, and update guard index
-                self.mark_matrix(guard_index)
-                self.matrix[y_coord][x_coord] = self.guard_direction
-                self.guard_index = (x_coord, y_coord)
-
-                return True
-
             case ">":
                 # Get target coordinates
                 x_coord = guard_index[0] + 1
                 y_coord = guard_index[1]
                 index = (x_coord, y_coord)
-
-                # Check for board exit
-                if self.check_for_out_of_bounds(index):
-                    self.mark_matrix(guard_index)
-                    return False
-
-                # Check for pivot space
-                if self.check_for_pivot(index):
-                    self.cycle_guard_direction()
-                    return True
-
-                # Mark matrix and move guard
-                self.mark_matrix(guard_index)
-                self.matrix[y_coord][x_coord] = self.guard_direction
-                self.guard_index = (x_coord, y_coord)
-
-                return True
 
             case "v":
                 # Get target coordinates
@@ -161,44 +128,47 @@ class GuardMonitor:
                 y_coord = guard_index[1] + 1
                 index = (x_coord, y_coord)
 
-                # Check for board exit
-                if self.check_for_out_of_bounds(index):
-                    self.mark_matrix(guard_index)
-                    return False
+        # Check for board exit
+        if self.check_for_out_of_bounds(index):
+            return False
 
-                # Check for pivot space
-                if self.check_for_pivot(index):
-                    self.cycle_guard_direction()
-                    return True
-
-                # Mark matrix and move guard
-                self.mark_matrix(guard_index)
-                self.matrix[y_coord][x_coord] = self.guard_direction
-                self.guard_index = (x_coord, y_coord)
-
+        # Check for pivot space
+        try:
+            if self.check_for_pivot(index):
+                self.guard.cycle_guard_direction()
                 return True
 
-    def retrace_steps(self):
-        count = 0
-        for row in self.matrix:
-            for step in row:
-                if step == "X":
-                    count += 1
-        print(count)
+        except InfiniteLoop:
+            self.infinite_loop = True
+            return False
 
-    def develop_counter_ops(self):
-        # What if you just put an obstacle on every location the guard steps on, run the route and see if it infinite
-        # loops?
-        pass
+        # Mark matrix and move guard
+        self.guard.index = index
+        return True
 
 
 if __name__ == "__main__":
-    gm = GuardMonitor(matrix)
+    with open("day6_input.txt", "r") as f:
+        data = f.read()
+        rows = data.splitlines()
+        matrix_map = [[Node(char) for char in row] for row in rows]
 
-    # Set walking flag
-    walking = True
+    loops = 0
+    loop_matrices = []
+    nodes = [node for row in matrix_map for node in row]
+    for node in tqdm(nodes):
+        original_char = node.char
+        if node.char not in ["<", "^", ">", "v"]:
+            node.char = "#"
+            matrix = Matrix(matrix_map)
+            while matrix.move_guard():
+                pass
+            if matrix.infinite_loop:
+                loops += 1
 
-    while walking:
-        walking = gm.move_guard()
+            node.char = original_char
 
-    gm.retrace_steps()
+            for nd in nodes:
+                nd.struck = False
+
+    print(loops)
