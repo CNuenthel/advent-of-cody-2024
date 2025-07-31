@@ -63,7 +63,7 @@ if __name__ == "__main__":
     df = read_file()
     equations = [Equation().build(line) for line in df]
     total = 0
-    for equation in equations:
-        if equation.countable:
-            total += equation.solution
+    for eqt in equations:
+        if eqt.countable:
+            total += eqt.solution
     print(total)
